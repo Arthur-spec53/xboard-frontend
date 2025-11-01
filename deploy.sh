@@ -518,6 +518,14 @@ generate_nginx_config_https() {
 # XBoard 前端 Nginx 配置 (HTTPS)
 # 生成时间: $(date)
 # 域名: $domains
+#
+# ═══════════════════════════════════════════════════════════════
+# 前后端分离架构说明:
+#   • 前端: 静态文件（HTML/CSS/JS）存放在 $web_root
+#   • 后端: API 服务运行在 $api_backend
+#   • Nginx 负责服务前端文件并代理 API 请求到后端
+#   • 所有 HTTP 流量自动重定向到 HTTPS
+# ═══════════════════════════════════════════════════════════════
 
 # HTTP 服务器 - 重定向到 HTTPS
 server {
@@ -553,7 +561,7 @@ server {
     ssl_stapling on;
     ssl_stapling_verify on;
     
-    # 网站根目录
+    # 前端静态文件根目录
     root $web_root;
     index index.html;
     
@@ -627,12 +635,19 @@ generate_nginx_config() {
 # XBoard 前端 Nginx 配置
 # 生成时间: $(date)
 # 域名: $domains
+#
+# ═══════════════════════════════════════════════════════════════
+# 前后端分离架构说明:
+#   • 前端: 静态文件（HTML/CSS/JS）存放在 $web_root
+#   • 后端: API 服务运行在 $api_backend
+#   • Nginx 负责服务前端文件并代理 API 请求到后端
+# ═══════════════════════════════════════════════════════════════
 
 server {
     listen 80;
     server_name $domains;
     
-    # 网站根目录
+    # 前端静态文件根目录
     root $web_root;
     index index.html;
     
@@ -716,18 +731,35 @@ deploy_nginx() {
     
     # 获取配置信息
     echo ""
-    print_info "域名配置说明："
+    print_info "═══ 前后端分离架构说明 ═══"
+    echo ""
+    echo "本系统采用前后端分离架构:"
+    echo "  • 前端: 静态文件（HTML/CSS/JS）由 Nginx 直接服务"
+    echo "  • 后端: API 服务，通过反向代理访问"
+    echo ""
+    
+    print_info "域名配置："
     echo "  - 单个域名: example.com"
-    echo "  - 多个域名: example.com www.example.com app.example.com (用空格分隔)"
+    echo "  - 多个域名: example.com www.example.com (用空格分隔)"
     echo "  - 本地测试: localhost"
     echo ""
-    read -p "请输入域名: " domains
+    read -p "请输入前端访问域名: " domains
     domains=${domains:-localhost}
     
-    read -p "请输入网站根目录 (默认: /var/www/xboard): " web_root
+    echo ""
+    print_info "前端部署目录配置："
+    echo "  这是前端静态文件（HTML/CSS/JS）的存放位置"
+    echo "  Nginx 会从这个目录读取并服务前端文件"
+    echo ""
+    read -p "前端文件部署目录 (默认: /var/www/xboard): " web_root
     web_root=${web_root:-/var/www/xboard}
     
-    read -p "请输入后端API地址 (默认: http://localhost:7001): " api_backend
+    echo ""
+    print_info "后端 API 配置："
+    echo "  这是后端 API 服务的访问地址（XBoard 后端）"
+    echo "  Nginx 会将 /api/* 请求代理到此地址"
+    echo ""
+    read -p "后端 API 地址 (默认: http://localhost:7001): " api_backend
     api_backend=${api_backend:-http://localhost:7001}
     
     # 询问是否配置 SSL
@@ -755,15 +787,26 @@ deploy_nginx() {
     # 确认信息
     echo ""
     print_info "═══ 部署配置确认 ═══"
-    echo "域名: $domains"
-    echo "网站目录: $web_root"
-    echo "后端API: $api_backend"
+    echo ""
+    echo "前端配置:"
+    echo "  访问域名: $domains"
+    echo "  部署目录: $web_root (前端静态文件)"
+    echo ""
+    echo "后端配置:"
+    echo "  API 地址: $api_backend (后端服务)"
+    echo "  代理规则: /api/* → $api_backend/api/*"
+    echo ""
     if [ "$enable_ssl" = true ]; then
         echo "HTTPS: 启用"
         echo "邮箱: $ssl_email"
+        echo ""
     else
         echo "HTTPS: 不启用"
+        echo ""
     fi
+    echo "架构说明:"
+    echo "  • 用户访问 $domains → Nginx 返回前端静态文件"
+    echo "  • 前端调用 /api/* → Nginx 代理到 $api_backend"
     echo ""
     
     if ! confirm "确认以上配置无误？" "y"; then
@@ -881,30 +924,47 @@ deploy_nginx() {
     
     echo ""
     print_success "═══ Nginx 部署完成！ =══"
+    echo ""
+    print_info "前端部署信息:"
     if [ "$enable_ssl" = true ] && [ -f "/etc/letsencrypt/live/$primary_domain/fullchain.pem" ]; then
-        print_info "访问地址: https://$primary_domain"
-        print_info "所有域名: $domains"
+        echo "  访问地址: https://$primary_domain"
     else
-        print_info "访问地址: http://$primary_domain"
-        print_info "所有域名: $domains"
+        echo "  访问地址: http://$primary_domain"
     fi
-    print_info "网站目录: $web_root"
-    print_info "配置文件: $config_file"
-    
-    # 防火墙提示
+    echo "  所有域名: $domains"
+    echo "  静态文件: $web_root"
+    echo ""
+    print_info "后端 API 配置:"
+    echo "  后端地址: $api_backend"
+    echo "  代理规则: /api/* → $api_backend/api/*"
+    echo ""
+    print_info "配置文件:"
+    echo "  Nginx 配置: $config_file"
     echo ""
     print_warning "重要提示："
-    echo "  请确保防火墙已开放以下端口："
-    echo "  - 80 (HTTP)"
+    echo ""
+    echo "1. 前后端分离架构已配置完成"
+    echo "   • 前端静态文件由 Nginx 直接服务"
+    echo "   • 后端 API 请求通过 Nginx 反向代理"
+    echo ""
+    echo "2. 确保后端服务正常运行"
+    echo "   • 后端应该监听在: $api_backend"
+    echo "   • 检查命令: curl $api_backend/api/v1/guest/comm/config"
+    echo ""
+    echo "3. 防火墙端口开放"
+    echo "   • 80 (HTTP)"
     if [ "$enable_ssl" = true ]; then
-        echo "  - 443 (HTTPS)"
+        echo "   • 443 (HTTPS)"
     fi
     echo ""
-    echo "  常用命令："
-    echo "  Ubuntu/Debian: sudo ufw allow 80/tcp && sudo ufw allow 443/tcp"
-    echo "  CentOS/RHEL:   sudo firewall-cmd --add-service=http --permanent"
-    echo "                 sudo firewall-cmd --add-service=https --permanent"
-    echo "                 sudo firewall-cmd --reload"
+    echo "   Ubuntu/Debian:"
+    echo "     sudo ufw allow 80/tcp && sudo ufw allow 443/tcp"
+    echo ""
+    echo "   CentOS/RHEL:"
+    echo "     sudo firewall-cmd --add-service=http --permanent"
+    echo "     sudo firewall-cmd --add-service=https --permanent"
+    echo "     sudo firewall-cmd --reload"
+    echo ""
 }
 
 #═══════════════════════════════════════════════════════════════════════
