@@ -118,53 +118,113 @@ detect_os() {
     log "Operating System: $OS $OS_VERSION"
 }
 
+# 检查 Node.js 版本是否满足要求
+check_node_version() {
+    local node_version=$(node -v | sed 's/v//')
+    local major_version=$(echo "$node_version" | cut -d. -f1)
+    
+    # Vite 7 需要 Node.js 20.19+ 或 22.12+
+    if [ "$major_version" -lt 20 ]; then
+        return 1
+    fi
+    
+    return 0
+}
+
 # 检查并安装 Node.js
 ensure_nodejs() {
     print_step "检查 Node.js 环境..."
     
+    local need_install=false
+    local need_upgrade=false
+    
     if command_exists node && command_exists npm; then
         local node_version=$(node -v)
         local npm_version=$(npm -v)
-        print_success "检测到 Node.js $node_version, npm $npm_version"
+        print_info "检测到 Node.js $node_version, npm $npm_version"
         log "Node.js: $node_version, npm: $npm_version"
-        return 0
-    fi
-    
-    print_warning "未检测到 Node.js 或 npm"
-    
-    if ! confirm "是否自动安装 Node.js (推荐 LTS 版本)？" "y"; then
-        print_error "Node.js 是必需的，部署已取消"
-        exit 1
-    fi
-    
-    print_step "安装 Node.js..."
-    
-    case "$OS" in
-        ubuntu|debian)
-            # 安装 NodeSource repository
-            curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
-            sudo apt-get install -y nodejs
-            ;;
-        centos|rhel)
-            curl -fsSL https://rpm.nodesource.com/setup_lts.x | sudo bash -
-            sudo yum install -y nodejs
-            ;;
-        fedora)
-            sudo dnf install -y nodejs npm
-            ;;
-        *)
-            print_error "不支持的操作系统，请手动安装 Node.js"
-            print_info "访问: https://nodejs.org/ 下载安装"
-            exit 1
-            ;;
-    esac
-    
-    if command_exists node && command_exists npm; then
-        print_success "Node.js 安装成功: $(node -v)"
-        log "Node.js installed: $(node -v)"
+        
+        # 检查版本是否满足要求
+        if ! check_node_version; then
+            print_warning "当前 Node.js 版本过低"
+            print_warning "Vite 7 需要 Node.js 20.19+ 或 22.12+"
+            need_upgrade=true
+            
+            if ! confirm "是否自动升级到 Node.js 20.x LTS？" "y"; then
+                print_error "需要 Node.js 20+ 才能继续，部署已取消"
+                print_info "您可以手动升级 Node.js 后重新运行此脚本"
+                exit 1
+            fi
+        else
+            print_success "Node.js 版本满足要求"
+            return 0
+        fi
     else
-        print_error "Node.js 安装失败"
-        exit 1
+        print_warning "未检测到 Node.js 或 npm"
+        need_install=true
+        
+        if ! confirm "是否自动安装 Node.js 20.x LTS？" "y"; then
+            print_error "Node.js 是必需的，部署已取消"
+            exit 1
+        fi
+    fi
+    
+    if [ "$need_install" = true ] || [ "$need_upgrade" = true ]; then
+        print_step "安装/升级 Node.js 20.x LTS..."
+        
+        case "$OS" in
+            ubuntu|debian)
+                # 清理旧版本
+                if [ "$need_upgrade" = true ]; then
+                    print_info "清理旧版本..."
+                    sudo apt-get remove -y nodejs npm 2>/dev/null || true
+                fi
+                
+                # 安装 Node.js 20.x
+                print_info "添加 NodeSource 仓库..."
+                curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+                
+                print_info "安装 Node.js..."
+                sudo apt-get install -y nodejs
+                ;;
+            centos|rhel)
+                if [ "$need_upgrade" = true ]; then
+                    sudo yum remove -y nodejs npm 2>/dev/null || true
+                fi
+                
+                curl -fsSL https://rpm.nodesource.com/setup_20.x | sudo bash -
+                sudo yum install -y nodejs
+                ;;
+            fedora)
+                if [ "$need_upgrade" = true ]; then
+                    sudo dnf remove -y nodejs npm 2>/dev/null || true
+                fi
+                
+                sudo dnf install -y nodejs npm
+                ;;
+            *)
+                print_error "不支持的操作系统，请手动安装 Node.js 20+"
+                print_info "访问: https://nodejs.org/ 下载安装"
+                exit 1
+                ;;
+        esac
+        
+        # 验证安装
+        if command_exists node && command_exists npm; then
+            local new_version=$(node -v)
+            print_success "Node.js 安装成功: $new_version"
+            log "Node.js installed: $new_version"
+            
+            # 再次检查版本
+            if ! check_node_version; then
+                print_error "安装的 Node.js 版本仍不满足要求"
+                print_info "请手动安装 Node.js 20.19+ 或 22.12+"
+                exit 1
+            fi
+        else
+            print_error "Node.js 安装失败"
+            exit 1
+        fi
     fi
 }
 
