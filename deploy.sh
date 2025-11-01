@@ -150,7 +150,7 @@ ensure_nodejs() {
             print_warning "Vite 7 需要 Node.js 20.19+ 或 22.12+"
             need_upgrade=true
             
-            if ! confirm "是否自动升级到 Node.js 20.x LTS？" "y"; then
+            if ! confirm "是否自动升级到最新 LTS 版本？" "y"; then
                 print_error "需要 Node.js 20+ 才能继续，部署已取消"
                 print_info "您可以手动升级 Node.js 后重新运行此脚本"
                 exit 1
@@ -163,14 +163,14 @@ ensure_nodejs() {
         print_warning "未检测到 Node.js 或 npm"
         need_install=true
         
-        if ! confirm "是否自动安装 Node.js 20.x LTS？" "y"; then
+        if ! confirm "是否自动安装最新 LTS 版本的 Node.js？" "y"; then
             print_error "Node.js 是必需的，部署已取消"
             exit 1
         fi
     fi
     
     if [ "$need_install" = true ] || [ "$need_upgrade" = true ]; then
-        print_step "安装/升级 Node.js 20.x LTS..."
+        print_step "安装/升级 Node.js (最新 LTS 版本)..."
         
         case "$OS" in
             ubuntu|debian)
@@ -180,9 +180,9 @@ ensure_nodejs() {
                     sudo apt-get remove -y nodejs npm 2>/dev/null || true
                 fi
                 
-                # 安装 Node.js 20.x
-                print_info "添加 NodeSource 仓库..."
-                curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+                # 安装最新 LTS 版本
+                print_info "添加 NodeSource 仓库 (LTS)..."
+                curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
                 
                 print_info "安装 Node.js..."
                 sudo apt-get install -y nodejs
@@ -192,7 +192,7 @@ ensure_nodejs() {
                     sudo yum remove -y nodejs npm 2>/dev/null || true
                 fi
                 
-                curl -fsSL https://rpm.nodesource.com/setup_20.x | sudo bash -
+                curl -fsSL https://rpm.nodesource.com/setup_lts.x | sudo bash -
                 sudo yum install -y nodejs
                 ;;
             fedora)
@@ -200,10 +200,11 @@ ensure_nodejs() {
                     sudo dnf remove -y nodejs npm 2>/dev/null || true
                 fi
                 
+                # Fedora 使用最新版本
                 sudo dnf install -y nodejs npm
                 ;;
             *)
-                print_error "不支持的操作系统，请手动安装 Node.js 20+"
+                print_error "不支持的操作系统，请手动安装 Node.js"
                 print_info "访问: https://nodejs.org/ 下载安装"
                 exit 1
                 ;;
@@ -218,7 +219,7 @@ ensure_nodejs() {
             # 再次检查版本
             if ! check_node_version; then
                 print_error "安装的 Node.js 版本仍不满足要求"
-                print_info "请手动安装 Node.js 20.19+ 或 22.12+"
+                print_info "请访问 https://nodejs.org/ 手动安装最新 LTS 版本"
                 exit 1
             fi
         else
