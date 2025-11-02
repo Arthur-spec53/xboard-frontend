@@ -9,7 +9,9 @@
 
 **A cyberpunk-styled XBoard frontend theme with Matrix aesthetics**
 
-*终端美学，极客之选 | Terminal Aesthetics, Geek's Choice*
+*Terminal Aesthetics, Geek's Choice | 终端美学，极客之选*
+
+English | [简体中文](README_CN.md)
 
 [✨ Features](#-features) • [📱 Demo](#-demo) • [🚀 Quick Start](#-quick-start) • [📖 Documentation](#-documentation)
 
