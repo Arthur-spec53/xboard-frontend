@@ -7,7 +7,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?style=for-the-badge&logo=typescript)
 ![License](https://img.shields.io/badge/License-MIT-00ff41?style=for-the-badge)
 
-**A cyberpunk-styled XBoard frontend theme with Matrix aesthetics**
+**NeoTerminal - A cyberpunk-styled XBoard theme with Matrix aesthetics**
 
 *Terminal Aesthetics, Geek's Choice | 终端美学，极客之选*
 
@@ -115,8 +115,8 @@ English | [简体中文](README_CN.md)
 
 ```bash
 # Clone the repository
-git clone https://github.com/Arthur-spec53/xboard-frontend.git
-cd xboard-frontend
+git clone https://github.com/Arthur-spec53/NeoTerminal.git
+cd NeoTerminal
 
 # Install dependencies
 npm install
@@ -286,8 +286,8 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ## 📞 Support
 
-- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/Arthur-spec53/xboard-frontend/issues)
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/Arthur-spec53/xboard-frontend/discussions)
+- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/Arthur-spec53/NeoTerminal/issues)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/Arthur-spec53/NeoTerminal/discussions)
 - 📧 **Email**: Create an issue on GitHub
 
 ---
