@@ -8,7 +8,11 @@
   "keywords": ["xboard", "theme", "cyberpunk", "matrix", "terminal", "vue3"],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Arthur-spec53/xboard-frontend.git"
+    "url": "git+https://github.com/Arthur-spec53/NeoTerminal.git"
+  },
+  "homepage": "https://github.com/Arthur-spec53/NeoTerminal#readme",
+  "bugs": {
+    "url": "https://github.com/Arthur-spec53/NeoTerminal/issues"
   },
   "type": "module",
   "scripts": {
