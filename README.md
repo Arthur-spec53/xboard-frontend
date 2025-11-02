@@ -2,12 +2,18 @@
 
 <div align="center">
 
+```
+╔╗╔╔═╗╔═╗╔╦╗╔═╗╦═╗╔╦╗╦╔╗╔╔═╗╦  
+║║║║╣ ║ ║ ║ ║╣ ╠╦╝║║║║║║║╠═╣║  
+╝╚╝╚═╝╚═╝ ╩ ╚═╝╩╚═╩ ╩╩╝╚╝╩ ╩╩═╝
+```
+
 ![NeoTerminal](https://img.shields.io/badge/NeoTerminal-v1.0.0-00ff41?style=for-the-badge)
 ![Vue.js](https://img.shields.io/badge/Vue.js-3.5-4FC08D?style=for-the-badge&logo=vue.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?style=for-the-badge&logo=typescript)
 ![License](https://img.shields.io/badge/License-MIT-00ff41?style=for-the-badge)
 
-**NeoTerminal - A cyberpunk-styled XBoard theme with Matrix aesthetics**
+**A cyberpunk-styled XBoard theme with Matrix aesthetics**
 
 *Terminal Aesthetics, Geek's Choice | 终端美学，极客之选*
 
