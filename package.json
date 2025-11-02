@@ -1,7 +1,15 @@
 {
-  "name": "frontend",
-  "private": true,
-  "version": "0.0.0",
+  "name": "neoterminal",
+  "private": false,
+  "version": "1.0.0",
+  "description": "NeoTerminal - A cyberpunk-styled XBoard frontend theme with Matrix aesthetics",
+  "author": "Arthur-spec53",
+  "license": "MIT",
+  "keywords": ["xboard", "theme", "cyberpunk", "matrix", "terminal", "vue3"],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Arthur-spec53/xboard-frontend.git"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",

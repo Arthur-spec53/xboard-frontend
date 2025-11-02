@@ -17,9 +17,10 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      // 代理 API 请求（可选，用于开发环境避免 CORS 问题）
+      // 代理 API 请求（开发环境使用，请修改为你的后端地址）
+      // 生产环境请使用 deploy.sh 脚本自动配置 Nginx 反向代理
       '/api': {
-        target: 'https://oddhouses.com',
+        target: 'http://localhost:8080', // 修改为你的后端 API 地址
         changeOrigin: true,
         secure: false
       }
