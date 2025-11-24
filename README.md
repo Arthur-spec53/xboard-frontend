@@ -199,6 +199,24 @@ Comprehensive documentation is available:
 > - If `app_name` is not configured, it will gracefully fall back to `app_description` (site description), and only then to the default `XBoard`.  
 > - It is recommended to set **Site Name (app_name)** in the XBoard admin panel (System Settings → Site Settings), and use the description only as a subtitle/tagline, so that the frontend can display your brand name correctly in the browser title, sidebar and dashboard.
 
+> 🛠 **Advanced: fixing `app_name` on the backend**  
+> In some environments, the backend API may return only `app_description` without a proper `app_name`. To make the theme work out of the box:  
+> 1. Edit `xboard-backend/app/Http/Controllers/V1/Guest/CommController.php` and locate the `config()` method.  
+> 2. Before building the `$data` array, add:  
+>    ```php
+>    $appName = admin_setting('app_name');
+>    $appDesc = admin_setting('app_description');
+>    if (empty($appName) && !empty($appDesc)) {
+>        $appName = $appDesc;
+>    }
+>    ```  
+> 3. Then use `$appName` / `$appDesc` in `$data`:  
+>    ```php
+>    'app_name'        => $appName ?: 'XBoard',
+>    'app_description' => $appDesc,
+>    ```  
+> 4. After the change, run `php artisan optimize:clear && php artisan config:clear` (and restart the backend if needed) to make the new behavior take effect.
+
 ---
 
 ## 🛠️ Development
