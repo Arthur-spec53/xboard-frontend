@@ -282,6 +282,15 @@ const generateAsciiLogo = (name: string) => {
 }
 ```
 
+### Static UI Preview (local file)
+
+- A **purely static preview page** is provided so you can see the NeoTerminal look & feel without connecting to any backend.  
+- File path: `docs/neoterminal-demo.html`  
+- How to use:  
+  - After cloning the repository, open this HTML file directly in your browser; or  
+  - Optionally deploy this file to your own site if you want to show the UI style to end users.  
+- Note: this is a **demo-only** page with mock content, not a full client – all real features still depend on your XBoard backend.
+
 ---
 
 ## 🤝 Contributing

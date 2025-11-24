@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>NeoTerminal Demo – Static Preview</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      :root {
+        --hacker-primary: #00ff41;
+        --hacker-primary-bright: #7fff7f;
+        --hacker-primary-dim: rgba(0, 255, 65, 0.3);
+        --hacker-bg: #050710;
+        --hacker-surface: #0b101b;
+        --hacker-border: #1f2937;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Mono", Menlo, Monaco,
+          Consolas, "Liberation Mono", "Courier New", monospace;
+        background: radial-gradient(circle at top, #111827 0, #020617 55%, #000 100%);
+        color: #e5e7eb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+      }
+
+      .frame {
+        width: min(1200px, 100%);
+        max-height: 720px;
+        background: radial-gradient(circle at top left, rgba(0, 255, 65, 0.08), transparent 55%),
+          radial-gradient(circle at bottom right, rgba(56, 189, 248, 0.12), transparent 60%),
+          linear-gradient(135deg, #020617, #020617 40%, #020617 100%);
+        border-radius: 24px;
+        border: 1px solid rgba(148, 163, 184, 0.3);
+        box-shadow:
+          0 0 0 1px rgba(15, 23, 42, 0.9),
+          0 40px 120px rgba(0, 0, 0, 0.9),
+          0 0 60px rgba(0, 255, 65, 0.18);
+        overflow: hidden;
+        display: flex;
+      }
+
+      .sidebar {
+        width: 260px;
+        background: linear-gradient(to bottom, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.98));
+        border-right: 1px solid rgba(148, 163, 184, 0.35);
+        padding: 20px 18px;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 18px;
+      }
+
+      .brand-badge {
+        width: 32px;
+        height: 32px;
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: radial-gradient(circle at 30% 0, rgba(0, 255, 65, 0.5), transparent 55%);
+        box-shadow: 0 0 20px rgba(0, 255, 65, 0.4);
+        font-size: 14px;
+        color: var(--hacker-primary-bright);
+      }
+
+      .brand-text {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .brand-name {
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--hacker-primary-bright);
+      }
+
+      .brand-desc {
+        font-size: 11px;
+        color: #9ca3af;
+      }
+
+      .ascii-box {
+        font-family: "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
+          monospace;
+        font-size: 9px;
+        line-height: 1.3;
+        color: var(--hacker-primary-dim);
+        border-radius: 12px;
+        border: 1px solid rgba(31, 41, 55, 0.9);
+        background: radial-gradient(circle at top, rgba(0, 255, 65, 0.12), rgba(15, 23, 42, 0.98));
+        padding: 10px 10px 12px;
+        margin-bottom: 18px;
+        text-shadow: 0 0 6px rgba(0, 255, 65, 0.35);
+        white-space: pre;
+        overflow: hidden;
+      }
+
+      .nav-section-title {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        color: #6b7280;
+        margin-bottom: 6px;
+      }
+
+      .nav-list {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+        padding: 7px 9px;
+        border-radius: 8px;
+        color: #9ca3af;
+      }
+
+      .nav-item--active {
+        background: radial-gradient(circle at 0 0, rgba(0, 255, 65, 0.2), transparent 70%);
+        color: var(--hacker-primary-bright);
+        border: 1px solid rgba(34, 197, 94, 0.45);
+        box-shadow:
+          0 0 16px rgba(0, 255, 65, 0.24),
+          inset 0 0 0 1px rgba(15, 23, 42, 0.9);
+      }
+
+      .nav-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 999px;
+        background: rgba(148, 163, 184, 0.5);
+      }
+
+      .nav-dot--green {
+        background: var(--hacker-primary);
+        box-shadow: 0 0 10px rgba(0, 255, 65, 0.8);
+      }
+
+      .main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        padding: 18px 20px 20px;
+        position: relative;
+      }
+
+      .status-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 14px;
+        font-size: 11px;
+        color: #9ca3af;
+      }
+
+      .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 4px 9px;
+        border-radius: 999px;
+        border: 1px solid rgba(55, 65, 81, 0.9);
+        background: rgba(15, 23, 42, 0.9);
+      }
+
+      .status-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 999px;
+        background: var(--hacker-primary);
+        box-shadow: 0 0 10px rgba(0, 255, 65, 0.9);
+      }
+
+      .terminal {
+        flex: 1;
+        border-radius: 14px;
+        border: 1px solid rgba(31, 41, 55, 0.95);
+        background:
+          radial-gradient(circle at top, rgba(0, 255, 65, 0.16), transparent 65%),
+          radial-gradient(circle at bottom, rgba(56, 189, 248, 0.14), transparent 65%),
+          linear-gradient(135deg, #020617, #020617 55%, #020617 100%);
+        box-shadow:
+          0 0 0 1px rgba(15, 23, 42, 0.9),
+          0 26px 80px rgba(0, 0, 0, 0.9);
+        padding: 12px 14px;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .terminal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+      }
+
+      .traffic-lights {
+        display: flex;
+        gap: 5px;
+      }
+
+      .traffic-dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 999px;
+        background: #111827;
+        border: 1px solid #1f2937;
+      }
+
+      .traffic-dot--red {
+        background: #f97373;
+        border-color: #fecaca;
+      }
+
+      .traffic-dot--yellow {
+        background: #facc15;
+        border-color: #fef08a;
+      }
+
+      .traffic-dot--green {
+        background: #22c55e;
+        border-color: #bbf7d0;
+      }
+
+      .terminal-title {
+        font-size: 11px;
+        color: #9ca3af;
+      }
+
+      .terminal-body {
+        flex: 1;
+        font-size: 12px;
+        line-height: 1.6;
+        color: #e5e7eb;
+        overflow: hidden;
+        position: relative;
+      }
+
+      .dim {
+        color: #6b7280;
+      }
+
+      .cmd-line {
+        display: flex;
+        gap: 6px;
+      }
+
+      .prompt {
+        color: var(--hacker-primary-bright);
+      }
+
+      .cursor {
+        display: inline-block;
+        width: 7px;
+        height: 12px;
+        background: var(--hacker-primary);
+        box-shadow: 0 0 12px rgba(0, 255, 65, 0.9);
+        margin-left: 3px;
+        animation: blink 1.4s steps(1) infinite;
+      }
+
+      .metrics {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+        margin: 10px 0 6px;
+      }
+
+      .metric-card {
+        border-radius: 10px;
+        border: 1px solid rgba(31, 41, 55, 0.95);
+        background: radial-gradient(circle at top, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.98));
+        padding: 7px 8px;
+      }
+
+      .metric-label {
+        font-size: 10px;
+        color: #9ca3af;
+        margin-bottom: 2px;
+      }
+
+      .metric-value {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--hacker-primary-bright);
+      }
+
+      .metric-sub {
+        font-size: 10px;
+        color: #6b7280;
+      }
+
+      .grid-fade {
+        position: absolute;
+        inset: 0;
+        opacity: 0.16;
+        background-image: linear-gradient(
+            to right,
+            rgba(148, 163, 184, 0.18) 1px,
+            transparent 1px
+          ),
+          linear-gradient(to bottom, rgba(148, 163, 184, 0.18) 1px, transparent 1px);
+        background-size: 18px 18px;
+        mix-blend-mode: screen;
+        pointer-events: none;
+      }
+
+      @keyframes blink {
+        0%,
+        49% {
+          opacity: 1;
+        }
+        50%,
+        100% {
+          opacity: 0;
+        }
+      }
+
+      @media (max-width: 900px) {
+        .frame {
+          flex-direction: column;
+          max-height: none;
+        }
+        .sidebar {
+          width: 100%;
+          border-right: none;
+          border-bottom: 1px solid rgba(148, 163, 184, 0.35);
+          flex-direction: row;
+          gap: 18px;
+        }
+        .ascii-box {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="frame">
+      <aside class="sidebar">
+        <div>
+          <div class="brand">
+            <div class="brand-badge">NT</div>
+            <div class="brand-text">
+              <div class="brand-name">NEOTERMINAL</div>
+              <div class="brand-desc">Hacker-style client theme</div>
+            </div>
+          </div>
+
+          <div class="ascii-box">
+   _   _                 _                  _ 
+  | \ | | ___  ___ _ __ | |_ _ __ _   _  __| |
+  |  \| |/ _ \/ _ \ '_ \| __| '__| | | |/ _` |
+  | |\  |  __/  __/ | | | |_| |  | |_| | (_| |
+  |_| \_|\___|\___|_| |_|\__|_|   \__,_|\__,_|
+
+          </div>
+
+          <div class="nav-section">
+            <div class="nav-section-title">Navigation</div>
+            <ul class="nav-list">
+              <li class="nav-item nav-item--active">
+                <span class="nav-dot nav-dot--green"></span>
+                <span>Dashboard</span>
+              </li>
+              <li class="nav-item">
+                <span class="nav-dot"></span>
+                <span>Subscriptions</span>
+              </li>
+              <li class="nav-item">
+                <span class="nav-dot"></span>
+                <span>Nodes</span>
+              </li>
+              <li class="nav-item">
+                <span class="nav-dot"></span>
+                <span>Tickets</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </aside>
+
+      <main class="main">
+        <div class="status-bar">
+          <div class="status-pill">
+            <span class="status-dot"></span>
+            <span>panel://neoterminal/demo</span>
+          </div>
+          <div class="status-pill">
+            <span class="dim">PING</span>
+            <span style="color: var(--hacker-primary-bright)">12.4ms</span>
+          </div>
+        </div>
+
+        <section class="terminal">
+          <div class="grid-fade"></div>
+
+          <div class="terminal-header">
+            <div class="traffic-lights">
+              <span class="traffic-dot traffic-dot--red"></span>
+              <span class="traffic-dot traffic-dot--yellow"></span>
+              <span class="traffic-dot traffic-dot--green"></span>
+            </div>
+            <div class="terminal-title">guest@your-brand: ~/dashboard</div>
+            <div style="width: 40px;"></div>
+          </div>
+
+          <div class="terminal-body">
+            <div class="dim"># Static preview only – real panel features depend on your backend.</div>
+            <div class="cmd-line">
+              <span class="prompt">guest@your-brand</span>
+              <span class="dim">~/dashboard</span>
+              <span>$</span>
+              <span> show overview</span>
+              <span class="cursor"></span>
+            </div>
+
+            <div class="metrics">
+              <div class="metric-card">
+                <div class="metric-label">Current bandwidth</div>
+                <div class="metric-value">128.4 GiB</div>
+                <div class="metric-sub">of 512 GiB</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-label">Active nodes</div>
+                <div class="metric-value">12 / 14</div>
+                <div class="metric-sub">auto-failover enabled</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-label">Latency (best route)</div>
+                <div class="metric-value">24 ms</div>
+                <div class="metric-sub">optimized path</div>
+              </div>
+            </div>
+
+            <div class="dim" style="margin-top: 8px;">
+              Tip: This HTML is a standalone static preview for documentation.  
+              Clone the repository and open this file directly in your browser to see the NeoTerminal
+              style without configuring any backend.
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>
+
+
