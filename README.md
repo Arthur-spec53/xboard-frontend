@@ -194,6 +194,11 @@ Comprehensive documentation is available:
 - 📙 [**Deployment Notes**](DEPLOYMENT_NOTE.md) - Architecture decisions
 - 📕 [**Fixes & Updates**](FIXES_v2.md) - Version 2.0 improvements
 
+> 💡 **Tip about site name configuration**  
+> - The theme reads the site name from the backend API `/api/v1/guest/comm/config`, using the `app_name` field first.  
+> - If `app_name` is not configured, it will gracefully fall back to `app_description` (site description), and only then to the default `XBoard`.  
+> - It is recommended to set **Site Name (app_name)** in the XBoard admin panel (System Settings → Site Settings), and use the description only as a subtitle/tagline, so that the frontend can display your brand name correctly in the browser title, sidebar and dashboard.
+
 ---
 
 ## 🛠️ Development
