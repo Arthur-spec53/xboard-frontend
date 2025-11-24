@@ -51,7 +51,8 @@
   ╚══▀▀═╝ ╚═╝    ╚═╝  ╚═╝ ╚═════╝ 
   安全访问终端
           </pre>
-          <TerminalPrompt user="guest" :host="siteName" symbol="#" />
+          <!-- 终端提示符中显示站点描述（无描述时退回站点名称） -->
+          <TerminalPrompt user="guest" :host="siteDescription || siteName" symbol="#" />
         </div>
         
         <!-- 输入区域 -->
@@ -132,8 +133,11 @@ import GeekButton from '@/components/common/GeekButton.vue'
 const router = useRouter()
 const authStore = useAuthStore()
 
-// 站点名称，优先使用后端配置，仅在未加载时使用通用占位
+// 站点名称与描述
+// - siteName：用于标题等位置，优先使用后端配置的站点名称
+// - siteDescription：用于终端提示符中的主机信息，优先使用站点描述
 const siteName = ref('XBoard')
+const siteDescription = ref('')
 
 // 启动序列
 const showBootSequence = ref(true)
@@ -161,12 +165,21 @@ const fetchSiteConfig = async () => {
   try {
     const response = await configService.fetchGuest()
     if (response && response.data) {
-      const { app_name } = response.data
-      // 从配置中获取站点名称：仅使用 app_name，未配置时使用通用默认值
+      const { app_name, app_description } = response.data
+
+      // 站点名称：优先使用 app_name，其次描述，最后通用默认值
       siteName.value =
         (typeof app_name === 'string' && app_name.trim() !== '' ? app_name.trim() : undefined) ||
+        (typeof app_description === 'string' && app_description.trim() !== '' ? app_description.trim() : undefined) ||
         'XBoard'
+
+      // 站点描述：优先使用 app_description，没有时退回站点名称
+      siteDescription.value =
+        (typeof app_description === 'string' && app_description.trim() !== '' ? app_description.trim() : undefined) ||
+        siteName.value
+
       log('[Login] ✅ 站点名称已加载:', siteName.value)
+      log('[Login] ✅ 站点描述已加载:', siteDescription.value)
     }
   } catch (err) {
     // 配置加载失败不影响登录功能，静默使用默认值
