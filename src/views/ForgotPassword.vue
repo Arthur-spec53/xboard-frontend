@@ -130,8 +130,8 @@ import GeekButton from '@/components/common/GeekButton.vue'
 
 const router = useRouter()
 
-// 站点名称
-const siteName = ref('奇库')
+// 站点名称，优先来自后端配置
+const siteName = ref('XBoard')
 
 // 表单数据
 const email = ref('')
@@ -158,7 +158,11 @@ const fetchConfig = async () => {
   try {
     const response = await configService.fetchGuest()
     if (response.success && response.data) {
-      siteName.value = response.data.app_name || response.data.app_description || '奇库'
+      const { app_name, app_description } = response.data
+      siteName.value =
+        (typeof app_name === 'string' && app_name.trim() !== '' ? app_name.trim() : undefined) ||
+        (typeof app_description === 'string' && app_description.trim() !== '' ? app_description.trim() : undefined) ||
+        'XBoard'
     }
   } catch (error) {
     console.error('[ForgotPassword] 获取配置失败:', error)

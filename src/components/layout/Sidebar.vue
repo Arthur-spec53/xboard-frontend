@@ -40,7 +40,8 @@ const emit = defineEmits<{
   close: []
 }>()
 
-const siteName = ref('奇库')
+// 默认站点名仅作为后端配置尚未加载时的占位显示
+const siteName = ref('XBoard')
 const asciiLogo = ref('')
 
 // 点击导航项时关闭侧边栏（移动端）
@@ -64,16 +65,9 @@ const navigation = [
 
 // 生成 ASCII 艺术字
 const generateAsciiLogo = (name: string) => {
-  // 预设的 ASCII 艺术字
+  // 预设的 ASCII 艺术字（仅针对少数常见名称）
   const asciiArtPresets: Record<string, string> = {
-    '奇库': `
- ██████╗ ██╗██╗  ██╗██╗   ██╗
-██╔═══██╗██║██║ ██╔╝██║   ██║
-██║   ██║██║█████╔╝ ██║   ██║
-██║▄▄ ██║██║██╔═██╗ ██║   ██║
-╚██████╔╝██║██║  ██╗╚██████╔╝
- ╚══▀▀═╝ ╚═╝╚═╝  ╚═╝ ╚═════╝`,
-    'XBoard': `
+    XBoard: `
 ╦ ╦╔╗ ╔═╗╔═╗╦═╗╔╦╗
 ╔╩╦╝╠╩╗║ ║╠═╣╠╦╝ ║║
 ╩ ╚═╚═╝╚═╝╩ ╩╩╚══╩╝`
@@ -100,16 +94,20 @@ const fetchSiteConfig = async () => {
   try {
     const response = await configService.fetchGuest()
     if (response && response.data) {
-      const { app_name } = response.data
-      
-      // 只使用 app_name，如果为空或是XBoard则使用默认"奇库"
-      if (app_name && app_name !== 'XBoard' && app_name.trim() !== '') {
+      const { app_name, app_description } = response.data
+
+      // 站点名优先使用 app_name，其次描述，最后使用通用默认值
+      if (app_name && typeof app_name === 'string' && app_name.trim() !== '') {
         siteName.value = app_name.trim()
         log('[Sidebar] ✅ 使用 app_name 作为站点名称:', siteName.value)
+      } else if (app_description && typeof app_description === 'string' && app_description.trim() !== '') {
+        siteName.value = app_description.trim()
+        log('[Sidebar] ✅ 使用 app_description 作为站点名称:', siteName.value)
       } else {
-        log('[Sidebar] ✅ 使用默认站点名称: 奇库')
+        siteName.value = 'XBoard'
+        log('[Sidebar] ✅ 使用默认站点名称:', siteName.value)
       }
-      
+
       // 生成 ASCII 艺术字
       asciiLogo.value = generateAsciiLogo(siteName.value)
     }

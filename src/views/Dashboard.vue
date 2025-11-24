@@ -351,7 +351,8 @@ const currentTime = ref('')
 const notices = ref<any[]>([])
 const trafficLogs = ref<any[]>([])
 const isLoadingTraffic = ref(false)
-const siteName = ref('奇库')  // 站点名称，默认为"奇库"
+// 站点名称，优先使用后端配置，仅在未加载时使用通用占位
+const siteName = ref('XBoard')
 const subscribeUrl = computed(() => userStore.subscription?.subscribe_url || '')
 
 // 图表配置
@@ -780,16 +781,19 @@ const fetchSiteConfig = async () => {
     const response = await configService.fetchGuest()
     
     if (response && response.data) {
-      const { app_name } = response.data
+      const { app_name, app_description } = response.data
       
-      log('[Dashboard] 配置数据:', { app_name })
+      log('[Dashboard] 配置数据:', { app_name, app_description })
       
-      // 只使用 app_name，如果为空或是XBoard则使用默认"奇库"
-      if (app_name && app_name !== 'XBoard' && app_name.trim() !== '') {
+      if (app_name && typeof app_name === 'string' && app_name.trim() !== '') {
         siteName.value = app_name.trim()
         log('[Dashboard] ✅ 使用 app_name 作为站点名称:', siteName.value)
+      } else if (app_description && typeof app_description === 'string' && app_description.trim() !== '') {
+        siteName.value = app_description.trim()
+        log('[Dashboard] ✅ 使用 app_description 作为站点名称:', siteName.value)
       } else {
-        log('[Dashboard] ✅ 使用默认站点名称: 奇库')
+        siteName.value = 'XBoard'
+        log('[Dashboard] ✅ 使用默认站点名称:', siteName.value)
       }
     }
   } catch (err) {
