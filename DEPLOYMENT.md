@@ -57,8 +57,19 @@ server {
     }
     
     # API 代理 (代理到后端)
+    # - /api/* → 后端 API JSON 接口
+    # - /s/*   → 订阅链接 (YAML/其他格式)
     location /api {
         proxy_pass http://localhost:7001;  # 后端API地址
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # 订阅链接反向代理到同一后端
+    location /s/ {
+        proxy_pass http://localhost:7001;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;

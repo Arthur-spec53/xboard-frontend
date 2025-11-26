@@ -308,9 +308,13 @@ python3 -m http.server 8080
 如果后端 API 不在同一服务器：
 
 **Nginx:**
-修改 `proxy_pass` 配置：
+修改 `proxy_pass` 配置（包括订阅路径 `/s/*`）：
 ```nginx
 location /api {
+    proxy_pass https://api.example.com;
+}
+
+location /s/ {
     proxy_pass https://api.example.com;
 }
 ```

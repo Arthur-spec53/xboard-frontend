@@ -1048,7 +1048,9 @@ server {
         try_files \$uri \$uri/ /index.html;
     }
     
-    # API 反向代理
+    # API 与订阅链接反向代理
+    # - /api/* → 后端 API（JSON 接口）
+    # - /s/*   → 订阅链接（YAML/其他格式）
     location /api {
         proxy_pass $api_backend;
         
@@ -1074,6 +1076,26 @@ server {
         
         # CORS 处理 - 让后端的 CORS 头透传，不干预
         # 不添加、不删除、不修改 CORS 头，完全由后端控制
+    }
+
+    # 订阅链接 /s/* 反向代理到同一后端
+    location /s/ {
+        proxy_pass $api_backend;
+
+        proxy_set_header Host \$http_host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_set_header X-Forwarded-Host \$host;
+
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection "upgrade";
+
+        proxy_connect_timeout 60s;
+        proxy_send_timeout 60s;
+        proxy_read_timeout 60s;
+        proxy_buffering off;
     }
     
     # 静态资源缓存
@@ -1143,7 +1165,9 @@ server {
         try_files \$uri \$uri/ /index.html;
     }
     
-    # API 反向代理
+    # API 与订阅链接反向代理
+    # - /api/* → 后端 API（JSON 接口）
+    # - /s/*   → 订阅链接（YAML/其他格式）
     location /api {
         proxy_pass $api_backend;
         proxy_set_header Host \$host;
@@ -1157,6 +1181,23 @@ server {
         proxy_set_header Connection "upgrade";
         
         # 超时设置
+        proxy_connect_timeout 60s;
+        proxy_send_timeout 60s;
+        proxy_read_timeout 60s;
+    }
+
+    # 订阅链接 /s/* 反向代理到同一后端
+    location /s/ {
+        proxy_pass $api_backend;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection "upgrade";
+
         proxy_connect_timeout 60s;
         proxy_send_timeout 60s;
         proxy_read_timeout 60s;
@@ -1508,6 +1549,14 @@ server {
     }
     
     location /api {
+        proxy_pass $api_backend;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+    }
+
+    # 订阅链接 /s/* 反向代理到同一后端
+    location /s/ {
         proxy_pass $api_backend;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
